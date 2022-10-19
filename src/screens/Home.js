@@ -1,4 +1,5 @@
 import axios from "axios";
+import Alert from '@mui/material/Alert';
 import React, { useEffect, useState } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
 import styles from './home.module.css';
@@ -7,22 +8,22 @@ export default function Home(){
     const [name, setName] = useState("");
     const [price, setPrice] = useState("");
     const [coinData, setCoinData] = useState([]);
+    const [alertMsg, setAlertMsg] = useState("")
 
-    const getData=async()=>{
-        const res = await axios.get("http://localhost:3001/coin/")
-        setCoinData(res.data.data)
+    const getData=()=>{
+        axios.get("http://localhost:3001/coin/")
+        .then((res)=>{
+            setCoinData(res.data.data)
+        }).catch((err)=>{
+            console.log(err)
+        })
     }
 
     useEffect(()=>{
         getData()
     },[])
     const currDate = new Date()
-    const data=[{
-        id:1,
-        name:"BTC",
-        price:"80.23822",
-        time: `${currDate.getFullYear()}-${currDate.getMonth()+1}-${currDate.getDate()} ${currDate.getHours()}:${currDate.getMinutes()}:${currDate.getSeconds()}`
-    }]
+
     const columns =[
     {
         dataField: 'name',
@@ -61,7 +62,10 @@ export default function Home(){
             getData()
         })
         .catch((err)=>{
-            console.log(err)
+            console.log(err.response.data.error)
+            if(err.response?.data?.error==="Limit to add 50 coins reached"){
+                setAlertMsg("Limit to add 50 coins reached")
+            }
         })
     }
 
@@ -69,10 +73,12 @@ export default function Home(){
         e.preventDefault()
         setName("");
         setPrice("");
+        setAlertMsg("");
         postData()
     }
     return(
         <div className={styles.wrapper}>
+             {alertMsg!==""&&<Alert severity="error">{alertMsg}</Alert>}
             <div className={styles.ipWrapper}>
             <input type="text" value = {name} placeholder="Enter coin name" className={styles.input}
             onChange={(e)=>{setName(e.target.value)}}/>
