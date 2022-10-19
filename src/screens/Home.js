@@ -42,9 +42,17 @@ export default function Home(){
     ]
 
     const postData=()=>{
+        let beautifiedPrice = 0.0
+        if(price>=1){
+            const numPrice = parseFloat(price)
+            beautifiedPrice = (Math.round(numPrice * 100) / 100).toFixed(2)
+        }else{
+            const numPrice = parseFloat(price)
+            beautifiedPrice = (numPrice).toFixed(7)
+        }
         const body ={
             name,
-            price,
+            price:beautifiedPrice.toString(),
             time: `${currDate.getFullYear()}-${currDate.getMonth()+1}-${currDate.getDate()} ${currDate.getHours()}:${currDate.getMinutes()}:${currDate.getSeconds()}`
         }
 
@@ -59,6 +67,8 @@ export default function Home(){
 
     const handleSubmit=(e)=>{
         e.preventDefault()
+        setName("");
+        setPrice("");
         postData()
     }
     return(
